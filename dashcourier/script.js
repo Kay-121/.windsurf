@@ -1,3 +1,117 @@
+// Package Tracking Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const trackingForm = document.getElementById('trackingForm');
+    const trackingResult = document.getElementById('trackingResult');
+    const trackingNumber = document.getElementById('trackingNumber');
+    const trackingId = document.getElementById('trackingId');
+    
+    if (trackingForm) {
+        trackingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const trackingNum = trackingNumber.value.trim();
+            
+            if (!trackingNum) {
+                showTrackingError('Please enter a tracking number');
+                return;
+            }
+            
+            // Validate tracking number format (basic validation)
+            if (!/^[A-Z]{4}-\d{6}$/.test(trackingNum.toUpperCase())) {
+                showTrackingError('Invalid tracking number format. Use format: DASH-123456');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = trackingForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Tracking...';
+            submitBtn.disabled = true;
+            
+            // Simulate tracking lookup
+            setTimeout(() => {
+                showTrackingResult(trackingNum.toUpperCase());
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 1500);
+        });
+    }
+    
+    function showTrackingResult(trackingNum) {
+        trackingId.textContent = trackingNum;
+        trackingResult.style.display = 'block';
+        
+        // Scroll to results
+        trackingResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        // Add entrance animation
+        trackingResult.style.opacity = '0';
+        trackingResult.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            trackingResult.style.transition = 'all 0.5s ease';
+            trackingResult.style.opacity = '1';
+            trackingResult.style.transform = 'translateY(0)';
+        }, 100);
+    }
+    
+    function showTrackingError(message) {
+        // Remove existing error messages
+        const existingError = trackingForm.querySelector('.tracking-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Create error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'tracking-error';
+        errorDiv.innerHTML = `
+            <div class="error-content">
+                <h4>❌ Tracking Error</h4>
+                <p>${message}</p>
+            </div>
+        `;
+        
+        trackingForm.appendChild(errorDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+        
+        // Scroll to error
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+});
+
+// Add tracking error styles
+const trackingErrorStyles = `
+<style>
+.tracking-error {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--border-radius);
+    animation: slideIn 0.3s ease;
+}
+
+.error-content h4 {
+    color: #dc2626;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.error-content p {
+    color: #991b1b;
+    margin: 0;
+    font-size: 0.9rem;
+}
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', trackingErrorStyles);
+
 // Mobile Navigation Toggle
 document.addEventListener('DOMContentLoaded', function() {
     const hamburger = document.querySelector('.hamburger');
