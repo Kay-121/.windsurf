@@ -1,3 +1,216 @@
+// PWA Service Worker Registration
+document.addEventListener('DOMContentLoaded', function() {
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered successfully:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Show update notification
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        });
+    }
+    
+    // Handle service worker messages
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'CACHE_UPDATED') {
+                console.log('Service Worker: Cache updated');
+            }
+        });
+    }
+});
+
+// Show update notification
+function showUpdateNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <p>🚀 A new version of DashCourier is available!</p>
+            <div class="notification-actions">
+                <button class="btn btn-primary" onclick="updateApp()">Update Now</button>
+                <button class="btn btn-secondary" onclick="dismissUpdate()">Later</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add styles
+    const styles = `
+        <style>
+        .update-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .notification-content p {
+            margin: 0 0 1rem 0;
+            font-weight: 600;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .notification-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .notification-actions .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        </style>
+    `;
+    
+    document.head.insertAdjacentHTML('beforeend', styles);
+}
+
+// Update app
+function updateApp() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        window.location.reload();
+    }
+}
+
+// Dismiss update notification
+function dismissUpdate() {
+    const notification = document.querySelector('.update-notification');
+    if (notification) {
+        notification.remove();
+    }
+}
+
+// Install prompt for PWA
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show install button (optional)
+    showInstallButton();
+});
+
+function showInstallButton() {
+    const installButton = document.createElement('button');
+    installButton.className = 'install-pwa-btn';
+    installButton.innerHTML = '📱 Install App';
+    installButton.onclick = installPWA;
+    
+    const header = document.querySelector('.header .nav-container');
+    if (header) {
+        header.appendChild(installButton);
+    }
+    
+    // Add styles
+    const styles = `
+        <style>
+        .install-pwa-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: auto;
+            transition: var(--transition);
+        }
+        
+        .install-pwa-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        @media (max-width: 768px) {
+            .install-pwa-btn {
+                display: none;
+            }
+        }
+        </style>
+    `;
+    
+    document.head.insertAdjacentHTML('beforeend', styles);
+}
+
+async function installPWA() {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+    } else {
+        console.log('User dismissed the install prompt');
+    }
+    
+    deferredPrompt = null;
+    
+    // Remove install button
+    const installButton = document.querySelector('.install-pwa-btn');
+    if (installButton) {
+        installButton.remove();
+    }
+}
+
+// Handle app installed event
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    
+    // Show success message
+    const successMessage = document.createElement('div');
+    successMessage.className = 'install-success';
+    successMessage.innerHTML = '✅ DashCourier installed successfully!';
+    successMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #10b981;
+        color: white;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(successMessage);
+    
+    setTimeout(() => {
+        successMessage.remove();
+    }, 3000);
+});
+
 // Live Counter Animation
 document.addEventListener('DOMContentLoaded', function() {
     const counters = document.querySelectorAll('.stat-number[data-target]');
@@ -444,6 +657,115 @@ document.addEventListener('DOMContentLoaded', function() {
             chatBadge.textContent = '1';
         }
     }, 10000);
+});
+
+// Blog Page Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Category filtering
+    const categoryTabs = document.querySelectorAll('.category-tab');
+    const blogPosts = document.querySelectorAll('.blog-post');
+    
+    if (categoryTabs.length > 0) {
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                
+                // Update active tab
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter posts
+                blogPosts.forEach(post => {
+                    if (category === 'all' || post.getAttribute('data-category') === category) {
+                        post.style.display = 'block';
+                        // Add animation
+                        post.style.opacity = '0';
+                        post.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            post.style.transition = 'all 0.5s ease';
+                            post.style.opacity = '1';
+                            post.style.transform = 'translateY(0)';
+                        }, 100);
+                    } else {
+                        post.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+    
+    // Newsletter signup
+    const newsletterForm = document.getElementById('newsletterForm');
+    const newsletterResult = document.getElementById('newsletterResult');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('newsletterEmail').value.trim();
+            
+            if (!email) {
+                showNewsletterResult('Please enter your email address', 'error');
+                return;
+            }
+            
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showNewsletterResult('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Subscribing...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                showNewsletterResult(`🎉 Success! You've been subscribed with ${email}`, 'success');
+                newsletterForm.reset();
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 1500);
+        });
+    }
+    
+    function showNewsletterResult(message, type) {
+        newsletterResult.textContent = message;
+        newsletterResult.className = `newsletter-result ${type}`;
+        newsletterResult.style.display = 'block';
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            newsletterResult.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Load more functionality
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            // Simulate loading more posts
+            this.textContent = 'Loading...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                // In a real implementation, this would load more posts from the server
+                this.textContent = 'No more articles available';
+                this.classList.add('disabled');
+                
+                // Show message
+                const message = document.createElement('p');
+                message.textContent = 'You\'ve reached the end of our blog archive!';
+                message.style.textAlign = 'center';
+                message.style.color = 'var(--text-light)';
+                message.style.marginTop = '1rem';
+                
+                this.parentNode.appendChild(message);
+            }, 1500);
+        });
+    }
 });
 
 // Pricing Calculator
