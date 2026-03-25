@@ -1,3 +1,285 @@
+// Live Counter Animation
+document.addEventListener('DOMContentLoaded', function() {
+    const counters = document.querySelectorAll('.stat-number[data-target]');
+    const speed = 200; // Animation speed
+    
+    const animateCounter = (counter) => {
+        const target = +counter.getAttribute('data-target');
+        const increment = target / speed;
+        
+        const updateCount = () => {
+            const count = +counter.innerText;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(updateCount, 1);
+            } else {
+                counter.innerText = target;
+                // Add decimal for percentages
+                if (target === 99.8) {
+                    counter.innerText = target.toFixed(1);
+                }
+            }
+        };
+        
+        updateCount();
+    };
+    
+    // Intersection Observer for counter animation
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                counterObserver.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    counters.forEach(counter => {
+        counterObserver.observe(counter);
+    });
+    
+    // Simulate live updates
+    setInterval(() => {
+        const activeDeliveries = document.querySelector('.stat-number[data-target="1247"]');
+        if (activeDeliveries && activeDeliveries.innerText === '1247') {
+            const variation = Math.floor(Math.random() * 21) - 10; // ±10 variation
+            const newValue = 1247 + variation;
+            activeDeliveries.innerText = newValue;
+            
+            // Add pulse animation
+            activeDeliveries.style.animation = 'pulse 0.5s ease';
+            setTimeout(() => {
+                activeDeliveries.style.animation = '';
+            }, 500);
+        }
+    }, 5000); // Update every 5 seconds
+});
+
+// ZIP Code Checker
+document.addEventListener('DOMContentLoaded', function() {
+    const zipForm = document.getElementById('zipForm');
+    const zipCode = document.getElementById('zipCode');
+    const zipResult = document.getElementById('zipResult');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+    
+    if (zipForm) {
+        zipForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const zip = zipCode.value.trim();
+            
+            if (!zip) {
+                showZipError('Please enter a ZIP code');
+                return;
+            }
+            
+            if (!/^\d{5}(-\d{4})?$/.test(zip)) {
+                showZipError('Please enter a valid ZIP code (e.g., 12345 or 12345-6789)');
+                return;
+            }
+            
+            // Show loading state
+            resultTitle.textContent = 'Checking availability...';
+            resultMessage.textContent = 'Please wait while we check your area.';
+            zipResult.style.display = 'block';
+            zipResult.className = 'zip-result loading';
+            
+            // Simulate API call
+            setTimeout(() => {
+                checkZipAvailability(zip);
+            }, 1500);
+        });
+    }
+    
+    function checkZipAvailability(zip) {
+        // Simulate different results based on ZIP code
+        const firstDigit = parseInt(zip[0]);
+        let result;
+        
+        if (firstDigit <= 3) {
+            // East Coast - Same day available
+            result = {
+                title: '✅ Same-Day Delivery Available!',
+                message: `Great news! ZIP code ${zip} is in our same-day delivery zone. Orders placed before 2 PM will be delivered today.`,
+                type: 'success'
+            };
+        } else if (firstDigit <= 6) {
+            // Central - Next day available
+            result = {
+                title: '✅ Next-Day Delivery Available',
+                message: `ZIP code ${zip} is covered by our next-day delivery service. Delivery by 5 PM tomorrow.`,
+                type: 'info'
+            };
+        } else {
+            // West Coast - 2-day delivery
+            result = {
+                title: '✅ 2-Day Delivery Available',
+                message: `ZIP code ${zip} is in our 2-day delivery zone. Fast, reliable service guaranteed.`,
+                type: 'warning'
+            };
+        }
+        
+        showZipResult(result);
+    }
+    
+    function showZipResult(result) {
+        resultTitle.textContent = result.title;
+        resultMessage.textContent = result.message;
+        zipResult.style.display = 'block';
+        zipResult.className = `zip-result ${result.type}`;
+        
+        // Scroll to result
+        zipResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function showZipError(message) {
+        resultTitle.textContent = '❌ Error';
+        resultMessage.textContent = message;
+        zipResult.style.display = 'block';
+        zipResult.className = 'zip-result error';
+        
+        zipResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+});
+
+// Testimonial Carousel
+document.addEventListener('DOMContentLoaded', function() {
+    const testimonials = document.querySelectorAll('.testimonial-card');
+    let currentIndex = 0;
+    
+    // Add navigation dots if there are more than 3 testimonials
+    if (testimonials.length > 3) {
+        const dotsContainer = document.createElement('div');
+        dotsContainer.className = 'testimonial-dots';
+        
+        for (let i = 0; i < testimonials.length; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'dot';
+            dot.setAttribute('data-index', i);
+            dot.addEventListener('click', () => showTestimonial(i));
+            dotsContainer.appendChild(dot);
+        }
+        
+        const testimonialsSection = document.querySelector('.testimonials');
+        testimonialsSection.appendChild(dotsContainer);
+        
+        // Auto-rotate testimonials
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % testimonials.length;
+            showTestimonial(currentIndex);
+        }, 8000);
+    }
+    
+    function showTestimonial(index) {
+        testimonials.forEach((testimonial, i) => {
+            testimonial.style.display = i === index ? 'block' : 'none';
+        });
+        
+        // Update dots
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+        
+        currentIndex = index;
+    }
+});
+
+// Add testimonial carousel styles
+const testimonialStyles = `
+<style>
+.testimonial-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    background: transparent;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.dot.active {
+    background: var(--primary-color);
+}
+
+.zip-result.loading {
+    background: #fef3c7;
+    border-left-color: #fbbf24;
+}
+
+.zip-result.success {
+    background: #d1fae5;
+    border-left-color: #10b981;
+}
+
+.zip-result.info {
+    background: #dbeafe;
+    border-left-color: #3b82f6;
+}
+
+.zip-result.warning {
+    background: #fed7aa;
+    border-left-color: #f97316;
+}
+
+.zip-result.error {
+    background: #fef2f2;
+    border-left-color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .testimonial-card {
+        display: none;
+    }
+    
+    .testimonial-card:first-child {
+        display: block;
+    }
+    
+    .trust-badges-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .live-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .coverage-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .zip-input-group {
+        flex-direction: column;
+    }
+    
+    .map-legend {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', testimonialStyles);
+
 // Chat Widget Functionality
 document.addEventListener('DOMContentLoaded', function() {
     const chatButton = document.getElementById('chatButton');
@@ -163,6 +445,171 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 10000);
 });
+
+// Pricing Calculator
+document.addEventListener('DOMContentLoaded', function() {
+    const priceCalculator = document.getElementById('priceCalculator');
+    const calculatorResult = document.getElementById('calculatorResult');
+    
+    if (priceCalculator) {
+        priceCalculator.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculatePrice();
+        });
+    }
+});
+
+function calculatePrice() {
+    const service = document.getElementById('calcService').value;
+    const distance = document.getElementById('calcDistance').value;
+    const weight = document.getElementById('calcWeight').value;
+    const urgency = document.getElementById('calcUrgency').value;
+    const packages = parseInt(document.getElementById('calcPackages').value) || 1;
+    const insurance = document.getElementById('calcInsurance').checked;
+    const signature = document.getElementById('calcSignature').checked;
+    
+    // Validate required fields
+    if (!service || !distance || !weight) {
+        showCalculatorError('Please fill in all required fields');
+        return;
+    }
+    
+    // Base pricing matrix
+    const basePrices = {
+        'same-day': {
+            'local': { 'light': 15, 'medium': 20, 'heavy': 35, 'extra-heavy': 50 },
+            'regional': { 'light': 25, 'medium': 35, 'heavy': 55, 'extra-heavy': 75 },
+            'long': { 'light': 45, 'medium': 65, 'heavy': 95, 'extra-heavy': 125 },
+            'national': { 'light': 75, 'medium': 105, 'heavy': 145, 'extra-heavy': 195 }
+        },
+        'standard': {
+            'local': { 'light': 8, 'medium': 12, 'heavy': 20, 'extra-heavy': 30 },
+            'regional': { 'light': 15, 'medium': 22, 'heavy': 35, 'extra-heavy': 50 },
+            'long': { 'light': 25, 'medium': 38, 'heavy': 55, 'extra-heavy': 75 },
+            'national': { 'light': 45, 'medium': 65, 'heavy': 85, 'extra-heavy': 115 }
+        },
+        'express': {
+            'local': { 'light': 25, 'medium': 35, 'heavy': 50, 'extra-heavy': 70 },
+            'regional': { 'light': 40, 'medium': 55, 'heavy': 75, 'extra-heavy': 100 },
+            'long': { 'light': 65, 'medium': 85, 'heavy': 115, 'extra-heavy': 150 },
+            'national': { 'light': 95, 'medium': 125, 'heavy': 165, 'extra-heavy': 215 }
+        },
+        'international': {
+            'local': { 'light': 45, 'medium': 65, 'heavy': 95, 'extra-heavy': 135 },
+            'regional': { 'light': 55, 'medium': 80, 'heavy': 115, 'extra-heavy': 165 },
+            'long': { 'light': 75, 'medium': 105, 'heavy': 145, 'extra-heavy': 195 },
+            'national': { 'light': 95, 'medium': 135, 'heavy': 185, 'extra-heavy': 245 }
+        },
+        'bulk': {
+            'local': { 'light': 5, 'medium': 8, 'heavy': 12, 'extra-heavy': 18 },
+            'regional': { 'light': 8, 'medium': 12, 'heavy': 18, 'extra-heavy': 25 },
+            'long': { 'light': 12, 'medium': 18, 'heavy': 25, 'extra-heavy': 35 },
+            'national': { 'light': 18, 'medium': 25, 'heavy': 35, 'extra-heavy': 50 }
+        }
+    };
+    
+    // Calculate base price
+    let basePrice = basePrices[service][distance][weight];
+    
+    // Apply urgency surcharge
+    let urgencyMultiplier = 1;
+    let urgencyPrice = 0;
+    if (urgency === 'priority') {
+        urgencyMultiplier = 1.25;
+        urgencyPrice = basePrice * 0.25;
+    } else if (urgency === 'urgent') {
+        urgencyMultiplier = 1.5;
+        urgencyPrice = basePrice * 0.5;
+    }
+    
+    // Calculate additional services
+    let additionalServices = 0;
+    if (insurance) additionalServices += 5 * packages;
+    if (signature) additionalServices += 3 * packages;
+    
+    // Calculate total
+    let totalPrice = (basePrice * urgencyMultiplier + additionalServices) * packages;
+    
+    // Apply bulk discount for bulk service
+    if (service === 'bulk' && packages >= 10) {
+        totalPrice *= 0.9; // 10% discount for 10+ packages
+    }
+    
+    // Display results
+    displayPriceResults({
+        basePrice,
+        urgencyPrice,
+        additionalServices,
+        packages,
+        totalPrice
+    });
+}
+
+function displayPriceResults(results) {
+    const calculatorResult = document.getElementById('calculatorResult');
+    const totalPrice = document.getElementById('totalPrice');
+    const basePrice = document.getElementById('basePrice');
+    const urgencyPrice = document.getElementById('urgencyPrice');
+    const additionalPrice = document.getElementById('additionalPrice');
+    const packageMultiplier = document.getElementById('packageMultiplier');
+    const breakdownTotal = document.getElementById('breakdownTotal');
+    
+    // Update display
+    totalPrice.textContent = `$${results.totalPrice.toFixed(2)}`;
+    basePrice.textContent = `$${(results.basePrice * results.packages).toFixed(2)}`;
+    urgencyPrice.textContent = `$${(results.urgencyPrice * results.packages).toFixed(2)}`;
+    additionalPrice.textContent = `$${results.additionalServices.toFixed(2)}`;
+    packageMultiplier.textContent = `x${results.packages}`;
+    breakdownTotal.textContent = `$${results.totalPrice.toFixed(2)}`;
+    
+    // Show result
+    calculatorResult.style.display = 'block';
+    
+    // Scroll to result
+    calculatorResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Add animation
+    calculatorResult.style.opacity = '0';
+    calculatorResult.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+        calculatorResult.style.transition = 'all 0.5s ease';
+        calculatorResult.style.opacity = '1';
+        calculatorResult.style.transform = 'translateY(0)';
+    }, 100);
+}
+
+function resetCalculator() {
+    const calculatorResult = document.getElementById('calculatorResult');
+    const priceCalculator = document.getElementById('priceCalculator');
+    
+    calculatorResult.style.display = 'none';
+    priceCalculator.reset();
+    
+    // Scroll back to form
+    priceCalculator.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showCalculatorError(message) {
+    const calculatorResult = document.getElementById('calculatorResult');
+    const totalPrice = document.getElementById('totalPrice');
+    const basePrice = document.getElementById('basePrice');
+    const urgencyPrice = document.getElementById('urgencyPrice');
+    const additionalPrice = document.getElementById('additionalPrice');
+    const packageMultiplier = document.getElementById('packageMultiplier');
+    const breakdownTotal = document.getElementById('breakdownTotal');
+    
+    // Show error message
+    totalPrice.textContent = 'Error';
+    basePrice.textContent = message;
+    urgencyPrice.textContent = '';
+    additionalPrice.textContent = '';
+    packageMultiplier.textContent = '';
+    breakdownTotal.textContent = '';
+    
+    calculatorResult.style.display = 'block';
+    calculatorResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
 // Package Tracking Functionality
 document.addEventListener('DOMContentLoaded', function() {

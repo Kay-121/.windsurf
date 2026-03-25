@@ -147,6 +147,131 @@
             </div>
         </section>
 
+        <section class="pricing-calculator">
+            <div class="container">
+                <h2 class="section-title">Instant Price Calculator</h2>
+                <p class="section-subtitle">Get an instant estimate for your delivery needs</p>
+                
+                <div class="calculator-container">
+                    <div class="calculator-form">
+                        <form id="priceCalculator">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="calcService">Service Type *</label>
+                                    <select id="calcService" required>
+                                        <option value="">Select service</option>
+                                        <option value="same-day">Same-Day Delivery</option>
+                                        <option value="standard">Standard Delivery</option>
+                                        <option value="express">Express Courier</option>
+                                        <option value="international">International Shipping</option>
+                                        <option value="bulk">Bulk Shipping</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calcDistance">Distance *</label>
+                                    <select id="calcDistance" required>
+                                        <option value="">Select distance</option>
+                                        <option value="local">Local (0-10 miles)</option>
+                                        <option value="regional">Regional (10-50 miles)</option>
+                                        <option value="long">Long Distance (50-200 miles)</option>
+                                        <option value="national">National (200+ miles)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="calcWeight">Package Weight *</label>
+                                    <select id="calcWeight" required>
+                                        <option value="">Select weight</option>
+                                        <option value="light">Light (0-5 lbs)</option>
+                                        <option value="medium">Medium (5-25 lbs)</option>
+                                        <option value="heavy">Heavy (25-100 lbs)</option>
+                                        <option value="extra-heavy">Extra Heavy (100+ lbs)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calcUrgency">Urgency Level</label>
+                                    <select id="calcUrgency">
+                                        <option value="standard">Standard</option>
+                                        <option value="priority">Priority (+25%)</option>
+                                        <option value="urgent">Urgent (+50%)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="calcPackages">Number of Packages</label>
+                                <input type="number" id="calcPackages" min="1" max="100" value="1">
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="calcInsurance">
+                                    <span class="checkmark"></span>
+                                    Add Insurance (+$5 per package)
+                                </label>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="calcSignature">
+                                    <span class="checkmark"></span>
+                                    Signature Required (+$3 per package)
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-full">Calculate Price</button>
+                        </form>
+                    </div>
+                    
+                    <div class="calculator-result" id="calculatorResult" style="display: none;">
+                        <div class="result-header">
+                            <h3>Your Price Estimate</h3>
+                            <div class="price-display">
+                                <span class="price-amount" id="totalPrice">$0.00</span>
+                                <span class="price-label">Total Price</span>
+                            </div>
+                        </div>
+                        
+                        <div class="price-breakdown">
+                            <h4>Price Breakdown</h4>
+                            <div class="breakdown-item">
+                                <span>Base Price:</span>
+                                <span id="basePrice">$0.00</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Urgency Surcharge:</span>
+                                <span id="urgencyPrice">$0.00</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Additional Services:</span>
+                                <span id="additionalPrice">$0.00</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Package Multiplier:</span>
+                                <span id="packageMultiplier">x1</span>
+                            </div>
+                            <div class="breakdown-total">
+                                <span>Total:</span>
+                                <span id="breakdownTotal">$0.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-actions">
+                            <a href="contact.html" class="btn btn-primary">Book This Delivery</a>
+                            <button class="btn btn-secondary" onclick="resetCalculator()">Calculate Another</button>
+                        </div>
+                        
+                        <div class="price-disclaimer">
+                            <p>*This is an estimate only. Final price may vary based on exact requirements.</p>
+                            <p>*Valid for 24 hours. Prices subject to change without notice.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="process">
             <div class="container">
                 <h2 class="section-title">How It Works</h2>
