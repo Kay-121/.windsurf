@@ -221,6 +221,60 @@
         </div>
     </footer>
 
+    <!-- Chat Support Widget -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-button" id="chatButton">
+            <div class="chat-icon">💬</div>
+            <div class="chat-badge" id="chatBadge">1</div>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <div class="chat-header-content">
+                    <div class="chat-avatar">
+                        <div class="avatar-icon">🚚</div>
+                    </div>
+                    <div class="chat-info">
+                        <h3>DashCourier Support</h3>
+                        <p class="chat-status">Online • Typically replies instantly</p>
+                    </div>
+                </div>
+                <button class="chat-close" id="chatClose">×</button>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-avatar">🚚</div>
+                    <div class="message-content">
+                        <p>Hi there! 👋 Welcome to DashCourier Support. How can I help you today?</p>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+                
+                <div class="quick-replies">
+                    <button class="quick-reply" data-message="Track my package">📦 Track my package</button>
+                    <button class="quick-reply" data-message="Get a quote">💰 Get a quote</button>
+                    <button class="quick-reply" data-message="Delivery times">⏰ Delivery times</button>
+                    <button class="quick-reply" data-message="Business services">🏢 Business services</button>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chatInput" placeholder="Type your message..." maxlength="500">
+                    <button class="chat-send" id="chatSend" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-footer">
+                    <span class="powered-by">Powered by DashCourier AI</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

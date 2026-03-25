@@ -1,3 +1,169 @@
+// Chat Widget Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const chatButton = document.getElementById('chatButton');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatClose = document.getElementById('chatClose');
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatBadge = document.getElementById('chatBadge');
+    
+    let isChatOpen = false;
+    let messageCount = 1;
+    
+    // Toggle chat
+    if (chatButton) {
+        chatButton.addEventListener('click', function() {
+            toggleChat();
+        });
+    }
+    
+    if (chatClose) {
+        chatClose.addEventListener('click', function() {
+            closeChat();
+        });
+    }
+    
+    function toggleChat() {
+        isChatOpen = !isChatOpen;
+        if (isChatOpen) {
+            openChat();
+        } else {
+            closeChat();
+        }
+    }
+    
+    function openChat() {
+        chatContainer.classList.add('active');
+        chatBadge.style.display = 'none';
+        isChatOpen = true;
+        chatInput.focus();
+    }
+    
+    function closeChat() {
+        chatContainer.classList.remove('active');
+        isChatOpen = false;
+    }
+    
+    // Send message functionality
+    if (chatSend && chatInput) {
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        chatInput.addEventListener('input', function() {
+            chatSend.disabled = !chatInput.value.trim();
+        });
+    }
+    
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, 'user');
+        
+        // Clear input
+        chatInput.value = '';
+        chatSend.disabled = true;
+        
+        // Simulate bot response
+        setTimeout(() => {
+            const botResponse = generateBotResponse(message);
+            addMessage(botResponse, 'bot');
+        }, 1000 + Math.random() * 1000);
+    }
+    
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = sender === 'user' ? '👤' : '🚚';
+        
+        const content = document.createElement('div');
+        content.className = 'message-content';
+        
+        const messageText = document.createElement('p');
+        messageText.textContent = text;
+        
+        const time = document.createElement('div');
+        time.className = 'message-time';
+        time.textContent = getCurrentTime();
+        
+        content.appendChild(messageText);
+        content.appendChild(time);
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+        
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Remove quick replies after first user message
+        const quickReplies = chatMessages.querySelector('.quick-replies');
+        if (quickReplies && sender === 'user') {
+            quickReplies.style.display = 'none';
+        }
+    }
+    
+    function generateBotResponse(userMessage) {
+        const responses = {
+            'track': 'I can help you track your package! Please enter your tracking number in the format DASH-123456, or I can redirect you to our tracking page.',
+            'quote': 'I\'d be happy to help you get a quote! For the most accurate pricing, please visit our contact page and fill out the quote request form. What type of delivery service are you interested in?',
+            'delivery': 'Our delivery times vary by service: Same-Day (2-4 hours), Express (1 hour), Standard (next business day), and International (3-7 days). Which service are you interested in?',
+            'business': 'We offer customized business solutions including scheduled pickups, volume discounts, dedicated account managers, and monthly billing. Let me connect you with our business sales team!',
+            'help': 'I can help you with package tracking, getting quotes, delivery information, business services, or answer general questions about DashCourier. What would you like to know?',
+            'hello': 'Hello! Welcome to DashCourier Support! How can I assist you today?',
+            'hi': 'Hi there! I\'m here to help with all your delivery needs. What can I do for you?'
+        };
+        
+        const lowerMessage = userMessage.toLowerCase();
+        
+        for (const [key, response] of Object.entries(responses)) {
+            if (lowerMessage.includes(key)) {
+                return response;
+            }
+        }
+        
+        return 'Thanks for your message! For specific assistance, I recommend visiting our contact page or calling 1-800-DASH-NOW. Is there anything else I can help you with?';
+    }
+    
+    function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+    }
+    
+    // Quick reply buttons
+    const quickReplies = document.querySelectorAll('.quick-reply');
+    quickReplies.forEach(button => {
+        button.addEventListener('click', function() {
+            const message = this.getAttribute('data-message');
+            chatInput.value = message;
+            sendMessage();
+        });
+    });
+    
+    // Show notification badge after 10 seconds (simulating new message)
+    setTimeout(() => {
+        if (!isChatOpen) {
+            chatBadge.style.display = 'flex';
+            chatBadge.textContent = '1';
+        }
+    }, 10000);
+});
+
 // Package Tracking Functionality
 document.addEventListener('DOMContentLoaded', function() {
     const trackingForm = document.getElementById('trackingForm');
